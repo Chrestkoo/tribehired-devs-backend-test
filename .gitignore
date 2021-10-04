@@ -3,4 +3,5 @@
 conf/app.ini
 runtime/logs
 .env
+tribehired-devs-backend-test
 docs/member
