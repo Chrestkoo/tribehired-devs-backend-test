@@ -3,7 +3,6 @@ package post_service
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"sort"
 	"strings"
 
@@ -47,7 +46,7 @@ func ProcessGetPostListing() ([]ProcessGetPostListingRst, error) {
 	// 	&models.CommentApi{PostId: 2, ID: 4},
 	// 	&models.CommentApi{PostId: 3, ID: 5},
 	// 	&models.CommentApi{PostId: 7, ID: 6},
-	// 	&models.CommentApi{PostId: 3, ID: 7},
+	// 	&models.CommentApi{PostId: 101, ID: 7},
 	// )
 	// end debug
 	if err != nil {
@@ -69,13 +68,8 @@ func ProcessGetPostListing() ([]ProcessGetPostListingRst, error) {
 		arrDataReturn[arrPostK].PostId = arrPostV.ID
 		arrDataReturn[arrPostK].PostTitle = arrPostV.Title
 		arrDataReturn[arrPostK].PostBody = arrPostV.Body
-	}
-
-	for k, v := range arrTotComment {
-		for arrDataReturnK, arrDataReturnV := range arrDataReturn {
-			if k == arrDataReturnV.PostId {
-				arrDataReturn[arrDataReturnK].TotNumOfComments = v
-			}
+		if arrTotComment[arrPostV.ID] > 0 {
+			arrDataReturn[arrPostK].TotNumOfComments = arrTotComment[arrPostV.ID]
 		}
 	}
 
@@ -167,23 +161,6 @@ func ProcessSearchPostListing(arrData PostListingSearchingField) ([]ProcessGetPo
 	// )
 	// end debug
 
-	arrComment, err := GetCommentListingViaApi()
-	// start debug
-	// arrComment := make([]*models.CommentApi, 0)
-
-	// arrComment = append(arrComment,
-	// 	&models.CommentApi{PostId: 1, ID: 1},
-	// 	&models.CommentApi{PostId: 2, ID: 2},
-	// 	&models.CommentApi{PostId: 2, ID: 3},
-	// 	&models.CommentApi{PostId: 2, ID: 4},
-	// 	&models.CommentApi{PostId: 3, ID: 5},
-	// 	&models.CommentApi{PostId: 7, ID: 6},
-	// 	&models.CommentApi{PostId: 3, ID: 7},
-	// )
-	// end debug
-	if err != nil {
-		return nil, err
-	}
 	arrDataReturn := make([]ProcessGetPostListingRst, 0)
 
 	postIDStatus := true
@@ -232,6 +209,24 @@ func ProcessSearchPostListing(arrData PostListingSearchingField) ([]ProcessGetPo
 		}
 	}
 
+	arrComment, err := GetCommentListingViaApi()
+	// start debug
+	// arrComment := make([]*models.CommentApi, 0)
+
+	// arrComment = append(arrComment,
+	// 	&models.CommentApi{PostId: 1, ID: 1},
+	// 	&models.CommentApi{PostId: 2, ID: 2},
+	// 	&models.CommentApi{PostId: 2, ID: 3},
+	// 	&models.CommentApi{PostId: 2, ID: 4},
+	// 	&models.CommentApi{PostId: 3, ID: 5},
+	// 	&models.CommentApi{PostId: 7, ID: 6},
+	// 	&models.CommentApi{PostId: 101, ID: 7},
+	// )
+	// end debug
+	if err != nil {
+		return nil, err
+	}
+
 	arrTotComment := make(map[int]int)
 	if len(arrComment) > 0 {
 		for _, arrCommentV := range arrComment {
@@ -256,7 +251,7 @@ func ProcessSearchPostListing(arrData PostListingSearchingField) ([]ProcessGetPo
 	}
 
 	arrNewDataReturn := make([]ProcessGetPostListingRst, 0)
-	fmt.Println("arrDataReturn:", arrDataReturn)
+	// fmt.Println("arrDataReturn:", arrDataReturn)
 	if len(arrDataReturn) > 0 {
 		for _, arrDataReturnV := range arrDataReturn {
 			if arrData.TotNumOfComments == arrDataReturnV.TotNumOfComments {
